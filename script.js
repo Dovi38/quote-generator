@@ -6,19 +6,21 @@ const newQuoteBtn = document.querySelector("#new-quote");
 const loader = document.querySelector("#loader");
 
 let apiQuotes = [];
-//Show loading
-const loading = () => {
+//Show loading spinner
+const showLoadingSpinner = () => {
   loader.hidden = false;
   quoteContainer.hidden = true;
 };
 //Hide loading
-const complete = () => {
-  quoteContainer.hidden = false;
-  loader.hidden = true;
+const removeLoadingSpinner = () => {
+  if (!loader.hidden) {
+    quoteContainer.hidden = false;
+    loader.hidden = true;
+  }
 };
 //New quote function
 const newQuote = () => {
-  loading();
+  showLoadingSpinner();
   //pic random quote from apiQuotes array
   const quote = apiQuotes[Math.floor(Math.random() * apiQuotes.length)];
   if (!quote.author) {
@@ -34,19 +36,20 @@ const newQuote = () => {
   }
   //Set quote, hide loader
   quoteText.textContent = quote.text;
-  complete();
+  removeLoadingSpinner();
 };
 
 //Get quotes from API
 const getQuotes = async () => {
-  loading();
+  showLoadingSpinner();
   const apiUrl = "https://type.fit/api/quotes";
   try {
     const response = await fetch(apiUrl);
     apiQuotes = await response.json();
     newQuote();
   } catch (error) {
-    //handle error alert(error)
+    //recursive function if error run same function again and it cause infinite loop
+    getQuotes();
   }
 };
 //Tweet a quote
